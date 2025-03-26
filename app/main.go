@@ -26,10 +26,17 @@ func main() {
 		}
 
 		switch args[0] {
-		case "exit":
-			os.Exit(0)
 		case "echo":
 			fmt.Println(strings.Join(args[1:], " "))
+		case "exit":
+			os.Exit(0)
+		case "type":
+			switch args[1] {
+			case "echo", "exit", "type":
+				fmt.Println(args[1] + " is a shell builtin")
+			default:
+				fmt.Println(args[1] + ": not found")
+			}
 		default:
 			fmt.Println(command + ": command not found")
 		}
