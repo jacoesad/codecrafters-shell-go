@@ -25,10 +25,13 @@ func main() {
 			continue
 		}
 
-		if args[0] == "exit" {
+		switch args[0] {
+		case "exit":
 			os.Exit(0)
-		} else {
-			fmt.Println(input[:len(input)-1] + ": command not found")
+		case "echo":
+			fmt.Println(strings.Join(args[1:], " "))
+		default:
+			fmt.Println(command + ": command not found")
 		}
 	}
 }
