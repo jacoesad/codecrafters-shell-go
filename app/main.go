@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 )
@@ -46,22 +47,38 @@ func main() {
 			case "echo", "exit", "type":
 				fmt.Println(args[1] + " is a shell builtin")
 			default:
-				findCmd(args[1])
+				found, fullPath := findCmd(args[1])
+				if found {
+					fmt.Println(args[1] + " is " + fullPath)
+				} else {
+					fmt.Println(args[1] + ": not found")
+				}
 			}
 		default:
-			fmt.Println(command + ": command not found")
+			execCmd(args[0], args[1:])
 		}
 	}
 }
 
-func findCmd(cmd string) {
+func findCmd(cmd string) (bool, string) {
 	for _, path := range systemPaths {
 		fullPath := filepath.Join(path, cmd)
 		if _, err := os.Stat(fullPath); err == nil {
-			fmt.Println(cmd + " is " + fullPath)
-			return
+			return true, fullPath
 		}
 	}
+	return false, ""
+}
 
-	fmt.Println(cmd + ": not found")
+func execCmd(cmd string, args []string) {
+	found, _ := findCmd(cmd)
+	if !found {
+		fmt.Println(cmd + ": command not found")
+		return
+	}
+
+	execCmd := exec.Command(cmd, args...)
+	execCmd.Stdout = os.Stdout
+	execCmd.Stderr = os.Stderr
+	execCmd.Run()
 }
